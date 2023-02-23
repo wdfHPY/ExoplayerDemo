@@ -17,8 +17,7 @@ class AddParameterInterceptor : Interceptor {
         requestBuilder.addHeader("tenant-id", "1")
         requestBuilder.addHeader("client-type", "APP")
         //        GlobalConstant instance = GlobalConstant.getInstance();
-
-        val token = "\$2a\$10\$70lDZag.Y0tGGVsSyo/AeOc5ljdgKjJoNqU4c0IUK5CyFNmCOnEhy"
+        val token = "\$2a\$10\$XdtWb5vAC463C6kTJkVNJerYGgeibq1ut1yLf4MuMQiGaOLR9Dc8O"
         //添加/替换统一头部token
         Log.i("token==", token)
         if (!TextUtils.isEmpty(token)) {

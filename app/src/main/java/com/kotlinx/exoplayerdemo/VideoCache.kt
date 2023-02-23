@@ -68,7 +68,7 @@ object VideoCache {
                         val downloadPercentage: Double = (bytesCached * 100.0 / requestLength)
                         Log.d(
                             TAG,
-                            "downloadPercentage $downloadPercentage previousVideoUrl: $previousVideoUrl"
+                            "downloadPercentage $requestLength previousVideoUrl: $previousVideoUrl"
                         )
                     }
                 }

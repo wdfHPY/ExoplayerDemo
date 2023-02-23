@@ -49,7 +49,7 @@ class VideoViewPager2Adapter(
 
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private val mediaUrlSparseArray = SparseArray<String>()
+//    private val mediaUrlSparseArray = SparseArray<String>()
 
     private val mStoredVideoPlayers: SparseArray<ExoPlayer> = SparseArray<ExoPlayer>()
 
@@ -106,7 +106,7 @@ class VideoViewPager2Adapter(
     }
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        mediaUrlSparseArray.append(position, targetPlayList[position])
+//        mediaUrlSparseArray.append(position, targetPlayList[position])
         mStoredVideoPlayers.append(position, createVideoPlayer(holder.binding.root.context))
         mStoredVideoView.append(position, holder.getVideoSource(holder.binding.root.context))
     }
@@ -121,7 +121,7 @@ class VideoViewPager2Adapter(
 
         val mediaSource: MediaSource = ProgressiveMediaSource
             .Factory(VideoCache.cacheDataSource)
-            .createMediaSource(MediaItem.fromUri(mediaUrlSparseArray.get(adapterPosition)))
+            .createMediaSource(MediaItem.fromUri(targetPlayList[adapterPosition]))
 
         val playerView = mStoredVideoView.get(adapterPosition)
         val player: ExoPlayer = mStoredVideoPlayers.get(adapterPosition)

@@ -5,6 +5,7 @@ import android.graphics.Point
 import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
+import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.util.size
@@ -30,6 +31,7 @@ import com.kotlinx.exoplayerdemo.VideoConstants.MAX_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_RESUME_BUFFER
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_START_BUFFER
+import com.kotlinx.exoplayerdemo.core.ExoPlayerManager
 import com.kotlinx.exoplayerdemo.databinding.ItemVideoItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +42,10 @@ import kotlinx.coroutines.launch
 class VideoViewPager2Adapter(
     var targetPlayList: List<String>
 ) : RecyclerView.Adapter<VideoViewPager2Adapter.VideoViewHolder>() {
+
+    companion object {
+        const val TAG = "VideoViewPager2Adapter"
+    }
 
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 

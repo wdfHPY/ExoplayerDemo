@@ -5,38 +5,25 @@ import android.graphics.Point
 import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
-import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.core.util.size
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.REPEAT_MODE_ALL
-import com.google.android.exoplayer2.Player.REPEAT_MODE_ONE
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.kotlinx.exoplayerdemo.VideoCache
 import com.kotlinx.exoplayerdemo.VideoConstants.MAX_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_RESUME_BUFFER
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_START_BUFFER
-import com.kotlinx.exoplayerdemo.core.ExoPlayerManager
 import com.kotlinx.exoplayerdemo.databinding.ItemVideoItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 
 
 class VideoViewPager2Adapter(
@@ -70,7 +57,9 @@ class VideoViewPager2Adapter(
                 MIN_PLAYBACK_RESUME_BUFFER
             ).setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true).build()
-        return ExoPlayer.Builder(context).setLoadControl(loadControl).build()
+        val renderersFactory = DefaultRenderersFactory(context)
+            .forceEnableMediaCodecAsynchronousQueueing()
+        return ExoPlayer.Builder(context, renderersFactory).setLoadControl(loadControl).build()
     }
 
     class VideoViewHolder(
@@ -93,6 +82,15 @@ class VideoViewPager2Adapter(
             videoPlayerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
             videoPlayerView.useController = false
             videoPlayerView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+            videoPlayerView.setOnClickListener {
+                videoPlayerView.player?.let {
+                    if (it.isPlaying)
+                        it.pause()
+                    else
+                        it.playWhenReady = true
+                }
+                Log.i(TAG, "getVideoSource: click!!!")
+            }
             return videoPlayerView
         }
 

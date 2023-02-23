@@ -16,6 +16,8 @@ import com.qmuiteam.qmui.util.QMUIStatusBarHelper
 import com.kotlinx.exoplayerdemo.net.VideoRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 
 class FullVideoViewModel : ViewModel() {
@@ -25,24 +27,20 @@ class FullVideoViewModel : ViewModel() {
 
     val videoLiveData: LiveData<VideoDOT> get() = innnerVideoDotLiveData
 
-    fun safeGetVideoListPage(
+    suspend fun safeGetVideoListPage(
         currentPage: Int, categoryType: Int, areaName: String? = null
-    ) {
+    ) : List<String> {
         val params = HashMap<String, Any>().also {
-            it["size"] = 20
+            it["size"] = 30
             it["current"] = currentPage
             it["categoryType"] = categoryType
             if (!areaName.isNullOrEmpty()) {
                 it["areaName"] = areaName
             }
         }
-        viewModelScope.launch {
-            videoRepo.safeGetVideoListPage(params = params, onSuccessCb = { videoDOT ->
-                if (videoDOT != null)
-                    innnerVideoDotLiveData.value = videoDOT
-            })
-        }
-
+       return videoRepo.safeGetVideoListPage(params = params)?.data?.records?.mapNotNull {
+           it.advertisementVideo
+       }.orEmpty()
     }
 }
 
@@ -86,14 +84,19 @@ class MainActivity : AppCompatActivity() {
                     }.getOrNull()
                     VideoCache.preCachePreviousAndNextVideo(nextVideoUrl)
 
-                    if (position == mAdapter.targetPlayList.size - 3) {
+                    if (position == mAdapter.targetPlayList.size - 15) {
                         Log.i("wwwrrr", "onPageSelected: 加载更多")
-                        val originalPlayList = mAdapter.targetPlayList.toMutableList()
-                        val modifyPlayList = mAdapter.targetPlayList.toMutableList()
-                        modifyPlayList.addAll(modifyPlayList.size - 1, fakeTestData())
-                        updateVideoPlayList(modifyPlayList)
-                        mAdapter.targetPlayList = modifyPlayList
-                        mAdapter.notifyItemRangeInserted(originalPlayList.size - 1, fakeTestData().size)
+                        mCurrentIndex += 1
+                        lifecycleScope.launch {
+                            fakeTestData().orEmpty().let {
+                                val originalPlayList = mAdapter.targetPlayList.toMutableList()
+                                val modifyPlayList = mAdapter.targetPlayList.toMutableList()
+                                modifyPlayList.addAll(modifyPlayList.size - 1, it)
+                                updateVideoPlayList(modifyPlayList)
+                                mAdapter.targetPlayList = modifyPlayList
+                                mAdapter.notifyItemRangeInserted(originalPlayList.size - 1, it.size)
+                            }
+                        }
                     }
 
                     Log.i("wwwrrr", "onPageSelected: 下移 缓存 $lastCachePageSelected")
@@ -144,6 +147,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        val m = Mutex()
         viewModel?.videoLiveData?.observe(this@MainActivity) {
             it.records.mapNotNull { bean ->
                 bean.advertisementVideo
@@ -179,15 +183,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-//        viewModel?.safeGetVideoListPage(
-//            mCurrentIndex,
-//            categoryType = 2,
-//            areaName = null
-//        )
+        lifecycleScope.launch {
+            fakeTestData().orEmpty().let {
+                mAdapter.targetPlayList = it
+                mAdapter.notifyDataSetChanged()
+            }
+        }
 
-        updateVideoPlayList(fakeTestData())
-        mAdapter.targetPlayList = fakeTestData()
-        mAdapter.notifyDataSetChanged()
+
+
+//        updateVideoPlayList(fakeTestData())
+//        mAdapter.targetPlayList = fakeTestData()
+//        mAdapter.notifyDataSetChanged()
 
     }
 

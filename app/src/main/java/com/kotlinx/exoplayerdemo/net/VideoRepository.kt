@@ -19,19 +19,11 @@ class VideoRepository : BaseHttpService() {
 //    }
 
     suspend fun safeGetVideoListPage(
-        params: HashMap<String, Any>,
-        onFailureCb: (t: Throwable) -> Unit = { _ -> },
-        onSuccessCb: (data: VideoDOT?) -> Unit = { _ -> }
+        params: HashMap<String, Any>
     ) = handleExceptionSafeApiCall (
         apiCall = {
             getService().indexVideoListPage(params = params)
         }
-    ).fold(
-        onSuccess = {
-            onSuccessCb(it?.data)
-        }, onFailure = {
-            onFailureCb.invoke(it)
-        }
-    )
+    ).getOrNull()
 
 }

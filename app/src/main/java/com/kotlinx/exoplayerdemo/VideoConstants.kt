@@ -10,7 +10,7 @@ object VideoConstants {
     const val MAX_BUFFER_DURATION = 15000
 
     //开始播放之前要缓冲的最小视频
-    const val MIN_PLAYBACK_START_BUFFER = 1000
+    const val MIN_PLAYBACK_START_BUFFER = 500
 
     //重新开始播放之前，ExoPlayer 应该缓冲多少毫秒的媒体数据。
     const val MIN_PLAYBACK_RESUME_BUFFER = 2000

@@ -1,6 +1,7 @@
 package com.kotlinx.exoplayerdemo.adapter
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Point
 import android.util.Log
 import android.util.SparseArray
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.REPEAT_MODE_ALL
@@ -15,7 +17,9 @@ import com.google.android.exoplayer2.Player.REPEAT_MODE_ONE
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.PlayerView.SHOW_BUFFERING_ALWAYS
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.android.exoplayer2.ui.StyledPlayerView.SHOW_BUFFERING_NEVER
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.kotlinx.exoplayerdemo.VideoCache
 import com.kotlinx.exoplayerdemo.VideoConstants.MAX_BUFFER_DURATION
@@ -84,7 +88,7 @@ class VideoViewPager2Adapter(
             videoPlayerView = StyledPlayerView(mContext)
             videoPlayerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
             videoPlayerView.useController = false
-            videoPlayerView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+            videoPlayerView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_NEVER)
             videoPlayerView.setOnClickListener {
                 videoPlayerView.player?.let {
                     if (it.isPlaying)
@@ -102,7 +106,11 @@ class VideoViewPager2Adapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
         return VideoViewHolder(
-            ItemVideoItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemVideoItemBinding.inflate(LayoutInflater.from(parent.context), parent, false).also {
+                it.currentState.setOnClickListener {
+                    Toast.makeText(it.context, "点击Click!!!!", Toast.LENGTH_SHORT).show()
+                }
+            }
         )
     }
 
@@ -125,12 +133,10 @@ class VideoViewPager2Adapter(
             .createMediaSource(MediaItem.fromUri(targetPlayList[adapterPosition]))
 
         val playerView = mStoredVideoView.get(adapterPosition)
+        playerView.useController = true
         val player: ExoPlayer? = ExoPlayerManager.singletonExoPlayer
-
-        player?.repeatMode = REPEAT_MODE_ONE
         player?.setMediaSource(mediaSource, false)
         player?.prepare()
-        player?.playWhenReady = true
 //        val video = playerView.videoSurfaceView
         playerView.player = player
         holder.binding.frameLl.addView(playerView)
@@ -144,9 +150,7 @@ class VideoViewPager2Adapter(
         if (indexOfChild >= 0) {
             holder.binding.frameLl.removeViewAt(indexOfChild)
             mStoredVideoView.get(adapterPosition)?.let { styledPlayerView ->
-//                styledPlayerView.player?.stop()
-//                styledPlayerView.player?.clearMediaItems()
-//                styledPlayerView.player?.clearVideoSurface()
+                styledPlayerView.player?.playWhenReady = true
                 styledPlayerView.player = null
             }
 //            mStoredVideoPlayers.get(adapterPosition).stop()

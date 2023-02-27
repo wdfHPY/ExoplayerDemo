@@ -10,6 +10,8 @@ import com.kotlinx.exoplayerdemo.VideoCache.preCacheVideo
 import com.kotlinx.exoplayerdemo.VideoCache.startCacheVideoJob
 import com.kotlinx.exoplayerdemo.VideoCache.updateVideoPlayList
 import com.kotlinx.exoplayerdemo.adapter.VideoViewPager2Adapter
+import com.kotlinx.exoplayerdemo.core.ExoPlayerManager.appendExoplayerMediaPlayerList
+import com.kotlinx.exoplayerdemo.core.ExoPlayerManager.initExoPlayerMediaPlayerList
 import com.kotlinx.exoplayerdemo.databinding.ActivityMainBinding
 import com.kotlinx.exoplayerdemo.net.VideoDOT
 import com.qmuiteam.qmui.util.QMUIStatusBarHelper

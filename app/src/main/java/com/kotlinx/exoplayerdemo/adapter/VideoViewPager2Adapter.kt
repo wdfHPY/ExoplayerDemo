@@ -5,11 +5,13 @@ import android.graphics.Point
 import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
+import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.REPEAT_MODE_ALL
+import com.google.android.exoplayer2.Player.REPEAT_MODE_ONE
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -20,6 +22,7 @@ import com.kotlinx.exoplayerdemo.VideoConstants.MAX_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_BUFFER_DURATION
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_RESUME_BUFFER
 import com.kotlinx.exoplayerdemo.VideoConstants.MIN_PLAYBACK_START_BUFFER
+import com.kotlinx.exoplayerdemo.core.ExoPlayerManager
 import com.kotlinx.exoplayerdemo.databinding.ItemVideoItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +58,7 @@ class VideoViewPager2Adapter(
                 MAX_BUFFER_DURATION,
                 MIN_PLAYBACK_START_BUFFER,
                 MIN_PLAYBACK_RESUME_BUFFER
-            ).setTargetBufferBytes(-1)
+            ).setTargetBufferBytes(1024)
             .setPrioritizeTimeOverSizeThresholds(true).build()
         val renderersFactory = DefaultRenderersFactory(context)
             .forceEnableMediaCodecAsynchronousQueueing()
@@ -105,7 +108,7 @@ class VideoViewPager2Adapter(
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
 //        mediaUrlSparseArray.append(position, targetPlayList[position])
-        mStoredVideoPlayers.append(position, createVideoPlayer(holder.binding.root.context))
+//        mStoredVideoPlayers.append(position, createVideoPlayer(holder.binding.root.context))
         mStoredVideoView.append(position, holder.getVideoSource(holder.binding.root.context))
     }
 
@@ -122,12 +125,13 @@ class VideoViewPager2Adapter(
             .createMediaSource(MediaItem.fromUri(targetPlayList[adapterPosition]))
 
         val playerView = mStoredVideoView.get(adapterPosition)
-        val player: ExoPlayer = mStoredVideoPlayers.get(adapterPosition)
+        val player: ExoPlayer? = ExoPlayerManager.singletonExoPlayer
 
-        player.repeatMode = REPEAT_MODE_ALL
-        player.setMediaSource(mediaSource, true)
-        player.prepare()
-        player.playWhenReady = true
+        player?.repeatMode = REPEAT_MODE_ONE
+        player?.setMediaSource(mediaSource, false)
+        player?.prepare()
+        player?.playWhenReady = true
+//        val video = playerView.videoSurfaceView
         playerView.player = player
         holder.binding.frameLl.addView(playerView)
     }
@@ -139,8 +143,18 @@ class VideoViewPager2Adapter(
             holder.binding.frameLl.indexOfChild(mStoredVideoView.get(adapterPosition))
         if (indexOfChild >= 0) {
             holder.binding.frameLl.removeViewAt(indexOfChild)
-            mStoredVideoPlayers.get(adapterPosition).stop()
-            mStoredVideoPlayers.get(adapterPosition).clearMediaItems()
+            mStoredVideoView.get(adapterPosition)?.let { styledPlayerView ->
+//                styledPlayerView.player?.stop()
+//                styledPlayerView.player?.clearMediaItems()
+//                styledPlayerView.player?.clearVideoSurface()
+                styledPlayerView.player = null
+            }
+//            mStoredVideoPlayers.get(adapterPosition).stop()
+////            mStoredVideoPlayers.get(adapterPosition).m
+//            Log.i(TAG, "onViewDetachedFromWindow: 、${mStoredVideoPlayers.get(adapterPosition).bufferedPercentage}")
+//            mStoredVideoView.get(adapterPosition).player = null
+//            mStoredVideoPlayers.get(adapterPosition).clearMediaItems()
+//            mStoredVideoPlayers.get(adapterPosition).clearAuxEffectInfo()
         }
     }
 }

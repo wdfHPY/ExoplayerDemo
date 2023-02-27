@@ -22,6 +22,6 @@ class VideoApp : Application() {
         cacheEvictor = LeastRecentlyUsedCacheEvictor(cacheSize)
         exoplayerDatabaseProvider = ExoDatabaseProvider(this)
         cache = SimpleCache(cacheDir, cacheEvictor, exoplayerDatabaseProvider)
-//        ExoPlayerManager.initSingletonExoPlayer(applicationContext)
+        ExoPlayerManager.initSingletonExoPlayer(applicationContext)
     }
 }

@@ -29,7 +29,7 @@ class FullVideoViewModel : ViewModel() {
 
     suspend fun safeGetVideoListPage(
         currentPage: Int, categoryType: Int, areaName: String? = null
-    ) : List<String> {
+    ): List<String> {
         val params = HashMap<String, Any>().also {
             it["size"] = 30
             it["current"] = currentPage
@@ -38,9 +38,9 @@ class FullVideoViewModel : ViewModel() {
                 it["areaName"] = areaName
             }
         }
-       return videoRepo.safeGetVideoListPage(params = params)?.data?.records?.mapNotNull {
-           it.advertisementVideo
-       }.orEmpty()
+        return videoRepo.safeGetVideoListPage(params = params)?.data?.records?.mapNotNull {
+            it.advertisementVideo
+        }.orEmpty()
     }
 }
 
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                         Log.i("wwwrrr", "onPageSelected: 加载更多")
                         mCurrentIndex += 1
                         lifecycleScope.launch {
-                            fakeTestData().orEmpty().let {
+                            viewModel?.safeGetVideoListPage(mCurrentIndex, 2).orEmpty().let {
                                 val originalPlayList = mAdapter.targetPlayList.toMutableList()
                                 val modifyPlayList = mAdapter.targetPlayList.toMutableList()
                                 modifyPlayList.addAll(modifyPlayList.size - 1, it)
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     Log.i("wwwrrr", "onPageSelected: 下移 缓存 $lastCachePageSelected")
-                } else if (lastPageSelected > position){
+                } else if (lastPageSelected > position) {
                     lastCachePageSelected -= 1
                     firstCachePageSelected -= 1
                     val nextVideoUrl = kotlin.runCatching {
@@ -116,9 +116,10 @@ class MainActivity : AppCompatActivity() {
                     //下界
                     lastCachePageSelected = position + 4
 
-                    mAdapter.targetPlayList.subList(firstCachePageSelected, lastCachePageSelected).let {
-                        preCacheVideo(it)
-                    }
+                    mAdapter.targetPlayList.subList(firstCachePageSelected, lastCachePageSelected)
+                        .let {
+                            preCacheVideo(it)
+                        }
                 }
                 lastPageSelected = position
 //                VideoCache.updateCurrentIndex(position)
@@ -184,12 +185,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            fakeTestData().orEmpty().let {
+            viewModel?.safeGetVideoListPage(mCurrentIndex, 2).orEmpty().let {
                 mAdapter.targetPlayList = it
                 mAdapter.notifyDataSetChanged()
             }
         }
-
 
 
 //        updateVideoPlayList(fakeTestData())

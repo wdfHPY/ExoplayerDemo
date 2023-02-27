@@ -26,19 +26,20 @@ object ExoPlayerManager {
     var singletonExoPlayer: ExoPlayer? = null
 
     //初始化单例 Singleton ExoPlayer.
-//    fun initSingletonExoPlayer(
-//        context: Context
-//    ) :ExoPlayer {
-//        val loadControl: LoadControl = DefaultLoadControl.Builder()
-//            .setAllocator(DefaultAllocator(true, 16))
-//            .setBufferDurationsMs(
-//                VideoConstants.MIN_BUFFER_DURATION,
-//                VideoConstants.MAX_BUFFER_DURATION,
-//                VideoConstants.MIN_PLAYBACK_START_BUFFER,
-//                VideoConstants.MIN_PLAYBACK_RESUME_BUFFER
-//            ).setTargetBufferBytes(-1)
-//            .setPrioritizeTimeOverSizeThresholds(true).build()
-//
-//            return ExoPlayer.Builder(context).setLoadControl(loadControl).build()
-//    }
+    fun initSingletonExoPlayer(
+        context: Context
+    ) :ExoPlayer? {
+        val loadControl: LoadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 16))
+            .setBufferDurationsMs(
+                VideoConstants.MIN_BUFFER_DURATION,
+                VideoConstants.MAX_BUFFER_DURATION,
+                VideoConstants.MIN_PLAYBACK_START_BUFFER,
+                VideoConstants.MIN_PLAYBACK_RESUME_BUFFER
+            ).setTargetBufferBytes(1024)
+            .setPrioritizeTimeOverSizeThresholds(true).build()
+
+        singletonExoPlayer=  ExoPlayer.Builder(context).setLoadControl(loadControl).build()
+        return singletonExoPlayer
+    }
 }
